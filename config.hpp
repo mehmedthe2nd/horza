@@ -5,19 +5,19 @@
 #include <string>
 
 struct HorzaConfig {
-  float captureScale = 0.96f;
-  float displayScale = 0.70f;
-  float overviewGap = 16.0f;
+  float captureScale = 1.0f;
+  float displayScale = 0.60f;
+  float overviewGap = 20.0f;
   float inactiveTileSizePercent = 85.0f;
   bool persistentCache = true;
-  float cacheTtlMs = 1500.0f;
+  float cacheTtlMs = 5000.0f;
   int cacheMaxEntries = 96;
   float captureBudgetMs = 4.0f;
   int maxCapturesPerFrame = 1;
-  float livePreviewFps = 6.0f;
-  int livePreviewRadius = 2;
-  bool prewarmAll = false;
-  bool hyprpaperBackground = false;
+  float livePreviewFps = 60.0f;
+  int livePreviewRadius = 1;
+  bool prewarmAll = true;
+  bool hyprpaperBackground = true;
   float backgroundBlurRadius = 3.0f;
   int backgroundBlurPasses = 1;
   float backgroundBlurSpread = 1.0f;
@@ -26,10 +26,10 @@ struct HorzaConfig {
   bool cardShadow = true;
   std::string cardShadowMode = "fast";
   std::string cardShadowTexture = "";
-  float cardShadowAlpha = 0.16f;
-  float cardShadowSize = 14.0f;
-  float cardShadowOffsetY = 8.0f;
-  bool showWindowTitles = false;
+  float cardShadowAlpha = 0.20f;
+  float cardShadowSize = 5.0f;
+  float cardShadowOffsetY = 2.0f;
+  bool showWindowTitles = true;
   int titleFontSize = 14;
   std::string titleFontFamily = "Inter Regular";
   float titleBackgroundAlpha = 0.35f;
@@ -38,7 +38,7 @@ struct HorzaConfig {
   float dragHoverJumpDelayMs = 1000.0f;
   bool vertical = false;
   float centerOffset = 0.0f;
-  int cornerRadius = 5;
+  int cornerRadius = 0;
 };
 
 inline HorzaConfig g_horzaConfig;
@@ -51,7 +51,7 @@ inline float clampCaptureScale(float v) {
 
 inline float clampDisplayScale(float v) {
   if (!std::isfinite(v))
-    return 0.70f;
+    return 0.60f;
   return std::clamp(v, 0.05f, 3.0f);
 }
 

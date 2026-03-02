@@ -82,21 +82,21 @@ Example:
 ```ini
 plugin {
   horza {
-    capture_scale = 0.96
-    display_scale = 0.70
-    overview_gap = 16.0
+    capture_scale = 1.0
+    display_scale = 0.60
+    overview_gap = 20.0
     inactive_tile_size_percent = 85.0
 
     persistent_cache = true
-    cache_ttl_ms = 1500.0
+    cache_ttl_ms = 5000.0
     cache_max_entries = 96
     capture_budget_ms = 4.0
     max_captures_per_frame = 1
-    live_preview_fps = 6.0
-    live_preview_radius = 2
-    prewarm_all = false
+    live_preview_fps = 60.0
+    live_preview_radius = 1
+    prewarm_all = true
 
-    background_source = black
+    background_source = hyprpaper
     background_blur_radius = 3.0
     background_blur_passes = 1
     background_blur_spread = 1.0
@@ -106,11 +106,11 @@ plugin {
     card_shadow = true
     card_shadow_mode = fast
     card_shadow_texture = ""
-    card_shadow_alpha = 0.16
-    card_shadow_size = 14.0
-    card_shadow_offset_y = 8.0
+    card_shadow_alpha = 0.2
+    card_shadow_size = 5.0
+    card_shadow_offset_y = 2.0
 
-    show_window_titles = false
+    show_window_titles = true
     title_font_size = 14
     title_font_family = "Inter Regular"
     title_background_alpha = 0.35
@@ -122,7 +122,7 @@ plugin {
 
     vertical = false
     center_offset = 0.0
-    corner_radius = 5
+    corner_radius = 0
   }
 }
 ```
