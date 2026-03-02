@@ -16,15 +16,17 @@ bool COverviewPassElement::needsPrecomputeBlur() { return false; }
 std::optional<CBox> COverviewPassElement::boundingBox() {
   if (!g_pOverview)
     return std::nullopt;
-  if (!g_pOverview->pMonitor)
+  const auto mon = g_pOverview->pMonitor.lock();
+  if (!mon)
     return std::nullopt;
-  return CBox{{}, g_pOverview->pMonitor->m_size};
+  return CBox{{}, mon->m_size};
 }
 
 CRegion COverviewPassElement::opaqueRegion() {
   if (!g_pOverview)
     return CRegion{};
-  if (!g_pOverview->pMonitor)
+  const auto mon = g_pOverview->pMonitor.lock();
+  if (!mon)
     return CRegion{};
-  return CBox{{}, g_pOverview->pMonitor->m_size};
+  return CBox{{}, mon->m_size};
 }

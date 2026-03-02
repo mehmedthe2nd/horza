@@ -1,15 +1,17 @@
 #pragma once
 #include "config.hpp"
-#include "globals.hpp"
 #include <any>
 #include <chrono>
 #include <hyprland/src/desktop/DesktopTypes.hpp>
+#include <hyprland/src/devices/IKeyboard.hpp>
+#include <hyprland/src/devices/IPointer.hpp>
+#include <hyprland/src/event/EventBus.hpp>
 #include <hyprland/src/helpers/AnimatedVariable.hpp>
-#include <hyprland/src/managers/HookSystemManager.hpp>
-#include <hyprland/src/managers/eventLoop/EventLoopTimer.hpp>
 #include <hyprland/src/render/Framebuffer.hpp>
 #include <memory>
 #include <vector>
+
+using SCallbackInfo = Event::SCallbackInfo;
 
 class COverview {
 public:
@@ -27,25 +29,23 @@ public:
   void close();
   void reopen();
   void requestWorkspaceSync();
-  bool closingHandoffActive() const;
-  bool closeUnderlayActive() const;
   bool closeDropPending() const;
 
   bool ready = false;
   bool closing = false;
   bool transitMode = false;
 
-  SP<HOOK_CALLBACK_FN> preRenderHook;
-  SP<HOOK_CALLBACK_FN> mouseButtonHook;
-  SP<HOOK_CALLBACK_FN> mouseMoveHook;
-  SP<HOOK_CALLBACK_FN> mouseAxisHook;
-  SP<HOOK_CALLBACK_FN> keyPressHook;
-  SP<HOOK_CALLBACK_FN> createWorkspaceHook;
-  SP<HOOK_CALLBACK_FN> destroyWorkspaceHook;
-  SP<HOOK_CALLBACK_FN> moveWorkspaceHook;
-  SP<HOOK_CALLBACK_FN> monitorAddedHook;
-  SP<HOOK_CALLBACK_FN> monitorRemovedHook;
-  SP<HOOK_CALLBACK_FN> configReloadedHook;
+  std::any preRenderHook;
+  std::any mouseButtonHook;
+  std::any mouseMoveHook;
+  std::any mouseAxisHook;
+  std::any keyPressHook;
+  std::any createWorkspaceHook;
+  std::any destroyWorkspaceHook;
+  std::any moveWorkspaceHook;
+  std::any monitorAddedHook;
+  std::any monitorRemovedHook;
+  std::any configReloadedHook;
 
   bool blockOverviewRendering = false;
   bool blockDamageReporting = false;
@@ -53,10 +53,10 @@ public:
   PHLMONITORREF pMonitor;
 
 private:
-  void onMouseButton(std::any param, SCallbackInfo& info);
+  void onMouseButton(const IPointer::SButtonEvent& e, SCallbackInfo& info);
   void onMouseMove();
-  void onMouseAxis(std::any param, SCallbackInfo& info);
-  void onKeyPress(std::any param, SCallbackInfo& info);
+  void onMouseAxis(const IPointer::SAxisEvent& e, SCallbackInfo& info);
+  void onKeyPress(const IKeyboard::SKeyEvent& e, SCallbackInfo& info);
   void onWorkspaceChange();
   bool syncWorkspaces();
   bool needsWorkspaceSync();
@@ -76,11 +76,10 @@ private:
   std::string workspaceTitleFor(const PHLWORKSPACE& ws) const;
   void suppressGlobalAnimations() const;
   void suppressWorkspaceWindowAnimations(const PHLWORKSPACE& ws) const;
-  void captureWorkspace(int idx);
+  bool captureWorkspace(int idx);
   void captureBackground();
   void refreshCardShadowTexture();
   void renderWorkspaceTitle(int idx, const CRegion& dmg, float tileScale);
-  float computeCloseOverlayAlpha() const;
   void scheduleCloseDrop();
 
   struct SWorkspaceImage {
@@ -126,16 +125,10 @@ private:
   int dragTargetIdx = -1;
   PHLWINDOW dragWindow = nullptr;
   std::chrono::steady_clock::time_point dragNextHoverJumpAt{};
-  bool handoffActive = false;
-  bool finalCrossfadeActive = false;
   bool closeDropScheduled = false;
-  float closeOverlayAlpha = 1.0f;
-  float finalCrossfadeStartAlpha = 1.0f;
   bool passQueuedThisFrame = false;
   std::chrono::steady_clock::time_point closeStartedAt{};
   std::chrono::steady_clock::time_point closeAnimFinishedAt{};
-  std::chrono::steady_clock::time_point finalCrossfadeStartedAt{};
-  SP<CEventLoopTimer> closeDropTimer;
 
   PHLANIMVAR<float> m_scale;
   PHLANIMVAR<float> m_offsetX;

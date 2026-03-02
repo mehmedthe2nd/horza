@@ -82,8 +82,6 @@ Example:
 ```ini
 plugin {
   horza {
-    preset = custom
-
     capture_scale = 0.96
     display_scale = 0.70
     overview_gap = 16.0
@@ -114,21 +112,15 @@ plugin {
 
     show_window_titles = false
     title_font_size = 14
-    title_font_family = "Inter"
+    title_font_family = "Inter Regular"
     title_background_alpha = 0.35
 
     freeze_animations_in_overview = true
     esc_only = true
 
-    async_close_handoff = false
-    async_close_fade_start = 0.88
-    async_close_fade_curve = ease_out
-    async_close_min_alpha = 0.0
-    close_drop_delay_ms = 100.0
-
     drag_hover_jump_delay_ms = 1000.0
 
-    orientation = horizontal
+    vertical = false
     center_offset = 0.0
     corner_radius = 5
   }

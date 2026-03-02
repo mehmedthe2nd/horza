@@ -10,7 +10,12 @@ pkg_check_modules(DEPS REQUIRED hyprland pixman-1 libdrm)
 
 add_library(horza SHARED
     main.cpp
+    plugin_runtime.cpp
     overview.cpp
+    overview_capture.cpp
+    overview_input.cpp
+    overview_render.cpp
+    overview_workspace_sync.cpp
     OverviewPassElement.cpp
 )
 

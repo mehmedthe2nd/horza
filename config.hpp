@@ -35,11 +35,6 @@ struct HorzaConfig {
   float titleBackgroundAlpha = 0.35f;
   bool freezeAnimationsInOverview = true;
   bool escOnly = true;
-  bool asyncCloseHandoff = false;
-  float asyncCloseFadeStart = 0.88f;
-  std::string asyncCloseFadeCurve = "ease_out";
-  float asyncCloseMinAlpha = 0.0f;
-  float closeDropDelayMs = 100.0f;
   float dragHoverJumpDelayMs = 1000.0f;
   bool vertical = false;
   float centerOffset = 0.0f;
@@ -60,15 +55,18 @@ inline float clampDisplayScale(float v) {
   return std::clamp(v, 0.05f, 3.0f);
 }
 
+inline float effectiveDisplayScale(float configured) {
+  const float clamped = clampDisplayScale(configured);
+  // A configured 1.0 has no geometric headroom for enter/exit animation.
+  // Keep it visually near-1 while preserving a smooth close/open path.
+  if (std::fabs(clamped - 1.0f) < 0.001f)
+    return 0.985f;
+  return clamped;
+}
+
 inline float clampInactiveTileSizePercent(float v) {
   if (!std::isfinite(v))
     return 85.0f;
-  return std::clamp(v, 0.0f, 100.0f);
-}
-
-inline float clampInactiveTileShrinkPercent(float v) {
-  if (!std::isfinite(v))
-    return 15.0f;
   return std::clamp(v, 0.0f, 100.0f);
 }
 
@@ -91,60 +89,4 @@ inline std::string stripWrappedQuotes(const std::string& s) {
        (s.front() == '\'' && s.back() == '\'')))
     return s.substr(1, s.size() - 2);
   return s;
-}
-
-inline bool applyHorzaPreset(const std::string& presetRaw, HorzaConfig& cfg) {
-  const std::string preset = normalizeHorzaToken(horzaTrim(presetRaw));
-
-  if (preset == "default" || preset == "stock" || preset == "none" ||
-      preset == "custom") {
-    cfg = HorzaConfig{};
-    return true;
-  }
-
-  if (preset == "gnome_fast") {
-    cfg = HorzaConfig{};
-    cfg.captureScale = 0.72f;
-    cfg.displayScale = 0.68f;
-    cfg.overviewGap = 18.0f;
-    cfg.inactiveTileSizePercent = 85.0f;
-    cfg.persistentCache = true;
-    cfg.cacheTtlMs = 1500.0f;
-    cfg.cacheMaxEntries = 96;
-    cfg.captureBudgetMs = 4.0f;
-    cfg.maxCapturesPerFrame = 1;
-    cfg.livePreviewFps = 8.0f;
-    cfg.livePreviewRadius = 1;
-    cfg.prewarmAll = false;
-    cfg.hyprpaperBackground = false;
-    cfg.backgroundBlurRadius = 0.0f;
-    cfg.backgroundBlurPasses = 0;
-    cfg.backgroundBlurSpread = 1.0f;
-    cfg.backgroundBlurStrength = 0.0f;
-    cfg.backgroundTint = 0.30f;
-    cfg.cardShadow = true;
-    cfg.cardShadowMode = "fast";
-    cfg.cardShadowTexture = "";
-    cfg.cardShadowAlpha = 0.16f;
-    cfg.cardShadowSize = 14.0f;
-    cfg.cardShadowOffsetY = 8.0f;
-    cfg.showWindowTitles = false;
-    cfg.titleFontSize = 13;
-    cfg.titleFontFamily = "Inter Regular";
-    cfg.titleBackgroundAlpha = 0.30f;
-    cfg.freezeAnimationsInOverview = true;
-    cfg.escOnly = true;
-    cfg.asyncCloseHandoff = false;
-    cfg.asyncCloseFadeStart = 0.88f;
-    cfg.asyncCloseFadeCurve = "ease_out";
-    cfg.asyncCloseMinAlpha = 0.0f;
-    cfg.closeDropDelayMs = 100.0f;
-    cfg.dragHoverJumpDelayMs = 1000.0f;
-    cfg.vertical = false;
-    cfg.centerOffset = 0.0f;
-    cfg.cornerRadius = 5;
-    return true;
-  }
-
-  return false;
 }
