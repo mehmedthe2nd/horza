@@ -23,6 +23,25 @@ If you want it snappier or smoother, tune your Hyprland animation block (especia
 
 ## Install
 
+### Via hyprpm (recommended)
+
+```bash
+hyprpm update
+hyprpm add https://github.com/mehmedthe2nd/horza
+hyprpm enable horza
+```
+
+Update later:
+
+```bash
+hyprpm update
+```
+
+Note:
+- If you use `hyprpm`, do not also keep a manual `plugin = .../libhorza.so` line for the same plugin in your config.
+
+### Manual build
+
 Build:
 ```bash
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$HOME/.local"
