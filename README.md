@@ -114,6 +114,9 @@ plugin {
     live_preview_fps = 60.0              # Refresh rate for visible non-current cards
     live_preview_radius = 1              # How many neighbor cards can live-refresh
     prewarm_all = true                   # Capture all cards on open if true
+    frame_pump = true                    # Keep issuing frames while overview motion/work is active
+    frame_pump_aggressive = true         # Also pump from render pass (yalsen-like, smoother, higher cost)
+    frame_pump_fps = 0.0                 # Pump FPS cap; 0 = auto (monitor refresh rate)
 
     background_source = hyprpaper        # hyprpaper | black
     background_blur_radius = 3.0         # Background blur radius

@@ -165,6 +165,37 @@ bool COverview::needsFramePump() const {
   return false;
 }
 
+bool COverview::framePumpDue(std::chrono::steady_clock::time_point now) const {
+  float fps = clampFramePumpFps(g_horzaConfig.framePumpFps);
+  if (fps <= 0.0f) {
+    if (const auto PMONITOR = pMonitor.lock())
+      fps = std::clamp(PMONITOR->m_refreshRate, 30.0f, 240.0f);
+    else
+      fps = 60.0f;
+  }
+
+  if (lastFramePumpAt.time_since_epoch().count() == 0)
+    return true;
+
+  const auto minInterval = std::chrono::duration<double>(1.0 / fps);
+  return now - lastFramePumpAt >= minInterval;
+}
+
+void COverview::pumpFrameIfDue(bool force) {
+  if (!g_horzaConfig.framePump) {
+    if (force)
+      damage();
+    return;
+  }
+
+  const auto now = std::chrono::steady_clock::now();
+  if (!force && !framePumpDue(now))
+    return;
+
+  lastFramePumpAt = now;
+  damage();
+}
+
 bool COverview::closeDropPending() const { return closeDropScheduled; }
 
 void COverview::scheduleCloseDrop() {
@@ -911,4 +942,8 @@ void COverview::fullRender() {
   }
 
   pendingCapture = hasVisibleUncaptured;
+
+  // Optional yalsen-like pump: schedule the next frame from the render pass.
+  if (g_horzaConfig.framePumpAggressive && needsFramePump())
+    pumpFrameIfDue();
 }

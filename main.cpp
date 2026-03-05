@@ -141,6 +141,14 @@ void registerPluginConfigValues() {
       Hyprlang::CConfigValue{(Hyprlang::INT)g_horzaConfig.livePreviewRadius});
   addPluginConfigValue("prewarm_all",
                        Hyprlang::CConfigValue{boolToToken(g_horzaConfig.prewarmAll)});
+  addPluginConfigValue("frame_pump",
+                       Hyprlang::CConfigValue{boolToToken(g_horzaConfig.framePump)});
+  addPluginConfigValue(
+      "frame_pump_aggressive",
+      Hyprlang::CConfigValue{boolToToken(g_horzaConfig.framePumpAggressive)});
+  addPluginConfigValue(
+      "frame_pump_fps",
+      Hyprlang::CConfigValue{(Hyprlang::FLOAT)g_horzaConfig.framePumpFps});
   addPluginConfigValue("background_source", Hyprlang::CConfigValue{defaultBackground});
   addPluginConfigValue(
       "background_blur_radius",
@@ -231,6 +239,12 @@ void applyPluginConfigOverrides() {
     g_horzaConfig.livePreviewRadius = std::max(0, (int)i);
   if (getPluginBool("prewarm_all", b))
     g_horzaConfig.prewarmAll = b;
+  if (getPluginBool("frame_pump", b))
+    g_horzaConfig.framePump = b;
+  if (getPluginBool("frame_pump_aggressive", b))
+    g_horzaConfig.framePumpAggressive = b;
+  if (getPluginFloat("frame_pump_fps", f))
+    g_horzaConfig.framePumpFps = clampFramePumpFps((float)f);
   if (getPluginString("background_source", s)) {
     const auto source = normalizeHorzaToken(s);
     if (source == "black")

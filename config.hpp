@@ -17,6 +17,9 @@ struct HorzaConfig {
   float livePreviewFps = 60.0f;
   int livePreviewRadius = 1;
   bool prewarmAll = true;
+  bool framePump = true;
+  bool framePumpAggressive = true;
+  float framePumpFps = 0.0f;
   bool hyprpaperBackground = true;
   float backgroundBlurRadius = 3.0f;
   int backgroundBlurPasses = 1;
@@ -68,6 +71,12 @@ inline float clampInactiveTileSizePercent(float v) {
   if (!std::isfinite(v))
     return 85.0f;
   return std::clamp(v, 0.0f, 100.0f);
+}
+
+inline float clampFramePumpFps(float v) {
+  if (!std::isfinite(v) || v <= 0.0f)
+    return 0.0f;
+  return std::clamp(v, 1.0f, 240.0f);
 }
 
 inline std::string horzaTrim(const std::string& s) {

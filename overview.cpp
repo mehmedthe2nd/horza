@@ -309,7 +309,7 @@ void COverview::onPreRender() {
       }
     }
 
-    damage();
+    pumpFrameIfDue(true);
     return;
   }
 
@@ -324,7 +324,7 @@ void COverview::onPreRender() {
   const bool deferCaptures = shouldDeferCaptures();
 
   if (openingAnimInProgress()) {
-    damage();
+    pumpFrameIfDue(true);
     return;
   }
 
@@ -426,7 +426,7 @@ void COverview::onPreRender() {
   }
 
   if (needsFramePump())
-    damage();
+    pumpFrameIfDue();
 }
 
 
@@ -463,9 +463,6 @@ void COverview::close() {
           g_pOverview->closeAnimFinishedAt = std::chrono::steady_clock::now();
 
         g_pOverview->damage();
-        const auto PMONITOR = g_pOverview->pMonitor.lock();
-        if (PMONITOR)
-          g_pCompositor->scheduleFrameForMonitor(PMONITOR);
       });
 }
 
@@ -488,9 +485,6 @@ void COverview::reopen() {
   openAnimPending = false;
   damageDirty = true;
   damage();
-
-  if (const auto PMONITOR = pMonitor.lock())
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
 }
 
 void COverview::render() {
@@ -515,6 +509,4 @@ void COverview::onDamageReported() {
     return;
   damageDirty = true;
   damage();
-  if (const auto PMONITOR = pMonitor.lock())
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
 }

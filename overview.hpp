@@ -73,6 +73,8 @@ private:
   bool switchAnimInProgress() const;
   bool shouldDeferCaptures() const;
   bool needsFramePump() const;
+  bool framePumpDue(std::chrono::steady_clock::time_point now) const;
+  void pumpFrameIfDue(bool force = false);
   bool isTileOnScreen(const CBox& box) const;
   int pickVisibleLivePreviewWorkspace(
       std::chrono::steady_clock::time_point now) const;
@@ -130,6 +132,7 @@ private:
   std::chrono::steady_clock::time_point dragNextHoverJumpAt{};
   bool closeDropScheduled = false;
   bool passQueuedThisFrame = false;
+  std::chrono::steady_clock::time_point lastFramePumpAt{};
   std::chrono::steady_clock::time_point closeStartedAt{};
   std::chrono::steady_clock::time_point closeAnimFinishedAt{};
 

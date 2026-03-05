@@ -127,7 +127,6 @@ bool COverview::shiftCurrentIndexBy(int step) {
 
   pendingCapture = true;
   damage();
-  g_pCompositor->scheduleFrameForMonitor(PMONITOR);
   return true;
 }
 
@@ -169,7 +168,6 @@ void COverview::onMouseMove() {
   if (newTargetIdx != dragTargetIdx) {
     dragTargetIdx = newTargetIdx;
     damage();
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
   }
 }
 
@@ -274,7 +272,6 @@ void COverview::onMouseButton(const IPointer::SButtonEvent& e,
     damageDirty = true;
     pendingCapture = true;
     damage();
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
     return;
   }
 
@@ -389,7 +386,6 @@ void COverview::onMouseAxis(const IPointer::SAxisEvent& e,
 
   pendingCapture = true;
   damage();
-  g_pCompositor->scheduleFrameForMonitor(PMONITOR);
 }
 
 void COverview::onKeyPress(const IKeyboard::SKeyEvent& e,
@@ -480,10 +476,8 @@ void COverview::requestWorkspaceSync() {
   pendingCapture = true;
   damageDirty = true;
 
-  const auto PMONITOR = pMonitor.lock();
-  if (!PMONITOR)
+  if (!pMonitor.lock())
     return;
 
   damage();
-  g_pCompositor->scheduleFrameForMonitor(PMONITOR);
 }
