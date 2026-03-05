@@ -277,7 +277,6 @@ void COverview::onPreRender() {
       return;
     }
     damage();
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
     return;
   }
 
@@ -311,7 +310,6 @@ void COverview::onPreRender() {
     }
 
     damage();
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
     return;
   }
 
@@ -323,10 +321,10 @@ void COverview::onPreRender() {
       onWorkspaceChange();
   }
 
-  
-  
+  const bool deferCaptures = shouldDeferCaptures();
+
   if (openingAnimInProgress()) {
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
+    damage();
     return;
   }
 
@@ -355,7 +353,7 @@ void COverview::onPreRender() {
     return elapsedMs < captureBudgetMs;
   };
 
-  if (pendingCapture) {
+  if (pendingCapture && !deferCaptures) {
     bool capturedAny = false;
 
     while (canDoOptionalCapture()) {
@@ -404,7 +402,7 @@ void COverview::onPreRender() {
     }
   }
 
-  if (damageDirty) {
+  if (damageDirty && !deferCaptures) {
     damageDirty = false;
     blockOverviewRendering = true;
     images[currentIdx].captured = captureWorkspace(currentIdx);
@@ -414,7 +412,7 @@ void COverview::onPreRender() {
     return;
   }
 
-  if (!pendingCapture && !closing && canDoOptionalCapture()) {
+  if (!pendingCapture && !closing && !deferCaptures && canDoOptionalCapture()) {
     const auto now = std::chrono::steady_clock::now();
     const int visibleRefreshIdx = pickVisibleLivePreviewWorkspace(now);
     if (visibleRefreshIdx != -1) {
@@ -427,8 +425,8 @@ void COverview::onPreRender() {
     }
   }
 
-  if (const auto PMONITOR = pMonitor.lock())
-    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
+  if (needsFramePump())
+    damage();
 }
 
 
@@ -505,8 +503,10 @@ void COverview::render() {
 
 void COverview::damage() {
   blockDamageReporting = true;
-  if (const auto PMONITOR = pMonitor.lock())
+  if (const auto PMONITOR = pMonitor.lock()) {
     g_pHyprRenderer->damageMonitor(PMONITOR);
+    g_pCompositor->scheduleFrameForMonitor(PMONITOR);
+  }
   blockDamageReporting = false;
 }
 

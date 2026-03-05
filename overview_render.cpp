@@ -133,6 +133,38 @@ bool COverview::openingAnimInProgress() const {
   return delta > 0.02f;
 }
 
+bool COverview::switchAnimInProgress() const {
+  if (closing || !m_offsetX)
+    return false;
+  return m_offsetX->isBeingAnimated();
+}
+
+bool COverview::shouldDeferCaptures() const {
+  if (closing)
+    return false;
+  if (openingAnimInProgress())
+    return true;
+  if (switchAnimInProgress())
+    return true;
+  return false;
+}
+
+bool COverview::needsFramePump() const {
+  if (closing)
+    return true;
+  if (openingAnimInProgress())
+    return true;
+  if (switchAnimInProgress())
+    return true;
+  if (m_crossOffset && m_crossOffset->isBeingAnimated())
+    return true;
+  if (leftButtonDown || draggingWindow)
+    return true;
+  if (pendingCapture || damageDirty)
+    return true;
+  return false;
+}
+
 bool COverview::closeDropPending() const { return closeDropScheduled; }
 
 void COverview::scheduleCloseDrop() {

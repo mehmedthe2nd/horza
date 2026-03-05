@@ -10,6 +10,7 @@
 #include <hyprland/src/event/EventBus.hpp>
 #include <hyprland/src/helpers/Monitor.hpp>
 #include <hyprland/src/managers/KeybindManager.hpp>
+#include <hyprland/src/render/OpenGL.hpp>
 #include <hyprland/src/render/Renderer.hpp>
 
 CPluginRuntime::~CPluginRuntime() { shutdown(); }
@@ -59,9 +60,39 @@ void CPluginRuntime::init(const std::function<void()>& onConfigReload) {
   HyprlandAPI::addDispatcherV2(PHANDLE, "horza:workspace",
                                dispatchWorkspaceTransitBridge);
 
-  if (Event::bus() && onConfigReloadCallback) {
-    configReloadListener = Event::bus()->m_events.config.reloaded.listen(
-        [this]() { onConfigReloadCallback(); });
+  if (auto* bus = Event::bus().get()) {
+    if (onConfigReloadCallback) {
+      configReloadListener =
+          bus->m_events.config.reloaded.listen(
+              [this]() { onConfigReloadCallback(); });
+    }
+
+    renderStageListener =
+        bus->m_events.render.stage.listen([this](eRenderStage stage) {
+          if (stage != RENDER_LAST_MOMENT)
+            return;
+
+          auto* ov = g_pOverview.get();
+          if (!ov || ov->blockOverviewRendering)
+            return;
+          if (ov->closeDropPending())
+            return;
+
+          const auto ovMon = ov->pMonitor.lock();
+          if (!ovMon)
+            return;
+
+          if (!g_pHyprOpenGL || !g_pHyprOpenGL->m_renderData.pMonitor)
+            return;
+          const auto stageMon = g_pHyprOpenGL->m_renderData.pMonitor.lock();
+          if (!stageMon || stageMon->m_id != ovMon->m_id)
+            return;
+
+          ov->render();
+        });
+    renderViaStage = true;
+  } else {
+    renderViaStage = false;
   }
 
   initialized = true;
@@ -81,6 +112,8 @@ void CPluginRuntime::shutdown() {
     renderWorkspaceHook = nullptr;
   }
 
+  renderStageListener.reset();
+  renderViaStage = false;
   configReloadListener.reset();
   onConfigReloadCallback = nullptr;
   initialized = false;
@@ -125,7 +158,8 @@ void CPluginRuntime::hookRenderWorkspace(void* thisptr, PHLMONITOR monitor,
     return;
   }
 
-  ov->render();
+  if (!renderViaStage)
+    ov->render();
 }
 
 void CPluginRuntime::hookAddDamageA(void* thisptr, const CBox& box) {

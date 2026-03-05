@@ -78,51 +78,50 @@ If this command fails for any package, install that package's development header
 
 Put options in your `hyprland.conf` inside `plugin { horza { ... } }`.
 
-Example:
+Default config (all options):
 ```ini
 plugin {
   horza {
-    capture_scale = 1.0
-    display_scale = 0.60
-    overview_gap = 20.0
-    inactive_tile_size_percent = 85.0
+    capture_scale = 1.0                  # Capture resolution scale (0.05..1.0)
+    display_scale = 0.60                 # Card scale in overview
+    overview_gap = 20.0                  # Gap between cards (logical px)
+    inactive_tile_size_percent = 85.0    # Size of off-center cards (% of active)
 
-    persistent_cache = true
-    cache_ttl_ms = 5000.0
-    cache_max_entries = 96
-    capture_budget_ms = 4.0
-    max_captures_per_frame = 1
-    live_preview_fps = 60.0
-    live_preview_radius = 1
-    prewarm_all = true
+    persistent_cache = true              # Reuse saved tile textures between opens
+    cache_ttl_ms = 5000.0                # Tile cache max age (ms)
+    cache_max_entries = 96               # Tile cache entry cap
+    capture_budget_ms = 4.0              # Per-frame capture budget (ms)
+    max_captures_per_frame = 1           # Max optional captures each frame
+    live_preview_fps = 60.0              # Refresh rate for visible non-current cards
+    live_preview_radius = 1              # How many neighbor cards can live-refresh
+    prewarm_all = true                   # Capture all cards on open if true
 
-    background_source = hyprpaper
-    background_blur_radius = 3.0
-    background_blur_passes = 1
-    background_blur_spread = 1.0
-    background_blur_strength = 1.0
-    background_tint = 0.35
+    background_source = hyprpaper        # hyprpaper | black
+    background_blur_radius = 3.0         # Background blur radius
+    background_blur_passes = 1           # Background blur passes
+    background_blur_spread = 1.0         # Background blur spread
+    background_blur_strength = 1.0       # Background blur strength
+    background_tint = 0.35               # Black tint alpha over background (0..1)
 
-    card_shadow = true
-    card_shadow_mode = fast
-    card_shadow_texture = ""
-    card_shadow_alpha = 0.2
-    card_shadow_size = 5.0
-    card_shadow_offset_y = 2.0
+    card_shadow = true                   # Enable card shadow
+    card_shadow_mode = fast              # fast | texture
+    card_shadow_texture = ""             # PNG path (used when mode=texture)
+    card_shadow_alpha = 0.2              # Shadow alpha (0..1)
+    card_shadow_size = 5.0               # Shadow size/spread (logical px)
+    card_shadow_offset_y = 2.0           # Shadow Y offset (logical px)
 
-    show_window_titles = true
-    title_font_size = 14
-    title_font_family = "Inter Regular"
-    title_background_alpha = 0.35
+    show_window_titles = true            # Show title pill below each card
+    title_font_size = 14                 # Title font size (pt)
+    title_font_family = "Inter Regular"  # Title font family name
+    title_background_alpha = 0.35        # Title pill alpha (0..1)
 
-    freeze_animations_in_overview = true
-    esc_only = true
+    freeze_animations_in_overview = true # Freeze workspace/window anim vars while open
+    esc_only = true                      # If true, only Esc closes from keyboard
+    drag_hover_jump_delay_ms = 1000.0    # Delay before hover-drag triggers index jump
 
-    drag_hover_jump_delay_ms = 1000.0
-
-    vertical = false
-    center_offset = 0.0
-    corner_radius = 0
+    vertical = false                     # Layout axis: false=horizontal, true=vertical
+    center_offset = 0.0                  # Cross-axis offset (logical px)
+    corner_radius = 0                    # Card corner radius (logical px)
   }
 }
 ```

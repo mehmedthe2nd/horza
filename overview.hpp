@@ -70,6 +70,9 @@ private:
   bool restoreTileFromCache(int idx);
   void saveTilesToCache();
   bool openingAnimInProgress() const;
+  bool switchAnimInProgress() const;
+  bool shouldDeferCaptures() const;
+  bool needsFramePump() const;
   bool isTileOnScreen(const CBox& box) const;
   int pickVisibleLivePreviewWorkspace(
       std::chrono::steady_clock::time_point now) const;

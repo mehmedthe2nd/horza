@@ -125,6 +125,7 @@ bool COverview::shiftCurrentIndexBy(int step) {
     damageDirty = true;
   }
 
+  pendingCapture = true;
   damage();
   g_pCompositor->scheduleFrameForMonitor(PMONITOR);
   return true;
@@ -386,6 +387,7 @@ void COverview::onMouseAxis(const IPointer::SAxisEvent& e,
     damageDirty = true;
   }
 
+  pendingCapture = true;
   damage();
   g_pCompositor->scheduleFrameForMonitor(PMONITOR);
 }
@@ -459,13 +461,16 @@ void COverview::onWorkspaceChange() {
         });
   }
 
-  if (!images[currentIdx].captured) {
+  if (!images[currentIdx].captured && !images[currentIdx].cachedTex) {
     blockOverviewRendering = true;
     images[currentIdx].captured = captureWorkspace(currentIdx);
     blockOverviewRendering = false;
     images[currentIdx].cachedTex.reset();
+  } else if (!images[currentIdx].captured && images[currentIdx].cachedTex) {
+    damageDirty = true;
   }
 
+  pendingCapture = true;
   damageDirty = true;
 }
 

@@ -50,9 +50,11 @@ private:
 
   bool initialized = false;
   bool renderingOverview = false;
+  bool renderViaStage = false;
 
   std::function<void()> onConfigReloadCallback;
   std::any configReloadListener;
+  std::any renderStageListener;
 
   CFunctionHook* renderWorkspaceHook = nullptr;
   CFunctionHook* addDamageHookA = nullptr;
