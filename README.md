@@ -2,7 +2,7 @@
 
 Vibecoded project disclaimer: Horza is built fast and iteratively; expect rapid changes and occasional rough edges between releases.
 
-![Horza overview](./horza.png)
+![Horza overview](./horza.jpg)
 
 ## What It Is
 
