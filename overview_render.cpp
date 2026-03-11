@@ -139,12 +139,31 @@ bool COverview::switchAnimInProgress() const {
   return m_offsetX->isBeingAnimated();
 }
 
+bool COverview::selectionCooldownActive() const {
+  if (closing)
+    return false;
+  if (lastSelectionChangeAt.time_since_epoch().count() == 0)
+    return false;
+
+  float refreshHz = 60.0f;
+  if (const auto PMONITOR = pMonitor.lock())
+    refreshHz = std::clamp(PMONITOR->m_refreshRate, 30.0f, 240.0f);
+
+  const double cooldownMs =
+      std::clamp(1000.0 / (double)refreshHz * 2.5, 24.0, 80.0);
+  return std::chrono::duration<double, std::milli>(
+             std::chrono::steady_clock::now() - lastSelectionChangeAt)
+             .count() < cooldownMs;
+}
+
 bool COverview::shouldDeferCaptures() const {
   if (closing)
     return false;
   if (openingAnimInProgress())
     return true;
   if (switchAnimInProgress())
+    return true;
+  if (selectionCooldownActive())
     return true;
   return false;
 }

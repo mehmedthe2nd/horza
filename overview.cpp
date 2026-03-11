@@ -150,6 +150,7 @@ COverview::COverview(PHLWORKSPACE startedOn_, bool transitMode_,
   if (!images[currentIdx].cachedTex) {
     images[currentIdx].captured = captureWorkspace(currentIdx);
     if (!images[currentIdx].captured) {
+      damageDirty = true;
       Log::logger->log(Log::ERR, "[horza] initial capture failed for ws={}",
                        images[currentIdx].pWorkspace
                            ? std::to_string(images[currentIdx].pWorkspace->m_id)
@@ -187,7 +188,6 @@ COverview::COverview(PHLWORKSPACE startedOn_, bool transitMode_,
   }
   blockOverviewRendering = false;
 
-  damageDirty = true;
   pendingCapture = !g_horzaConfig.prewarmAll;
   m_scale->setValueAndWarp(1.0f);
   
@@ -402,14 +402,43 @@ void COverview::onPreRender() {
     }
   }
 
-  if (damageDirty && !deferCaptures) {
-    damageDirty = false;
-    blockOverviewRendering = true;
-    images[currentIdx].captured = captureWorkspace(currentIdx);
-    blockOverviewRendering = false;
-    images[currentIdx].cachedTex.reset();
-    damage();
-    return;
+  if (damageDirty) {
+    const bool canUseCurrentCache =
+        currentIdx >= 0 && currentIdx < (int)images.size() &&
+        images[currentIdx].cachedTex;
+    if (deferCaptures && canUseCurrentCache) {
+      // Keep rapid card browsing smooth when we already have a cached preview
+      // for the centered tile.
+    } else {
+      damageDirty = false;
+      blockOverviewRendering = true;
+      images[currentIdx].captured = captureWorkspace(currentIdx);
+      blockOverviewRendering = false;
+      images[currentIdx].cachedTex.reset();
+      damage();
+      return;
+    }
+  }
+
+  if (damageRefreshIdx >= (int)images.size())
+    damageRefreshIdx = -1;
+
+  if (damageRefreshIdx != -1 && !deferCaptures) {
+    const int refreshIdx = damageRefreshIdx;
+    const bool shouldRefreshNow =
+        refreshIdx == currentIdx ||
+        (inCaptureRadius(refreshIdx) &&
+         isTileOnScreen(images[refreshIdx].displayBox));
+
+    if (shouldRefreshNow) {
+      damageRefreshIdx = -1;
+      blockOverviewRendering = true;
+      images[refreshIdx].captured = captureWorkspace(refreshIdx);
+      blockOverviewRendering = false;
+      images[refreshIdx].cachedTex.reset();
+      damage();
+      return;
+    }
   }
 
   if (!pendingCapture && !closing && !deferCaptures && canDoOptionalCapture()) {
@@ -507,6 +536,18 @@ void COverview::damage() {
 void COverview::onDamageReported() {
   if (blockDamageReporting)
     return;
-  damageDirty = true;
-  damage();
+
+  damageRefreshIdx = -1;
+  const auto PMONITOR = pMonitor.lock();
+  if (PMONITOR && PMONITOR->m_activeWorkspace) {
+    for (int i = 0; i < (int)images.size(); ++i) {
+      if (images[i].pWorkspace == PMONITOR->m_activeWorkspace) {
+        damageRefreshIdx = i;
+        break;
+      }
+    }
+  }
+
+  if (!needsFramePump())
+    damage();
 }

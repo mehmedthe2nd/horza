@@ -71,6 +71,7 @@ private:
   void saveTilesToCache();
   bool openingAnimInProgress() const;
   bool switchAnimInProgress() const;
+  bool selectionCooldownActive() const;
   bool shouldDeferCaptures() const;
   bool needsFramePump() const;
   bool framePumpDue(std::chrono::steady_clock::time_point now) const;
@@ -104,6 +105,7 @@ private:
   std::vector<SWorkspaceImage> images;
   int currentIdx = 0;
   bool damageDirty = false;
+  int damageRefreshIdx = -1;
   bool pendingCapture = false;
   bool workspaceListDirty = false;
   std::chrono::steady_clock::time_point nextWorkspaceSyncPollAt{};
@@ -133,6 +135,7 @@ private:
   bool closeDropScheduled = false;
   bool passQueuedThisFrame = false;
   std::chrono::steady_clock::time_point lastFramePumpAt{};
+  std::chrono::steady_clock::time_point lastSelectionChangeAt{};
   std::chrono::steady_clock::time_point closeStartedAt{};
   std::chrono::steady_clock::time_point closeAnimFinishedAt{};
 

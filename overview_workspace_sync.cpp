@@ -142,6 +142,7 @@ bool COverview::syncWorkspaces() {
   if (newIdx == -1)
     newIdx = std::clamp(currentIdx, 0, (int)images.size() - 1);
   currentIdx = newIdx;
+  damageRefreshIdx = -1;
 
   for (int i = 0; i < (int)images.size(); ++i) {
     if (images[i].captured || images[i].cachedTex)
@@ -164,7 +165,7 @@ bool COverview::syncWorkspaces() {
   }
 
   if (currentIdx >= 0 && currentIdx < (int)images.size() &&
-      images[currentIdx].cachedTex && !images[currentIdx].captured)
+      !images[currentIdx].captured)
     damageDirty = true;
 
   if ((int)images.size() != oldImageCount || dragSourceIdx >= (int)images.size() ||

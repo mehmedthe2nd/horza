@@ -112,6 +112,7 @@ bool COverview::shiftCurrentIndexBy(int step) {
                                     (targetIdx * (tileH + gap) + tileH * 0.5f);
 
   currentIdx = targetIdx;
+  lastSelectionChangeAt = std::chrono::steady_clock::now();
 
   m_offsetX->setValueAndWarp(m_offsetX->value() + (oldCenter - newCenter));
   *m_offsetX = 0.0f;
@@ -371,6 +372,7 @@ void COverview::onMouseAxis(const IPointer::SAxisEvent& e,
                                     (targetIdx * (tileH + gap) + tileH * 0.5f);
 
   currentIdx = targetIdx;
+  lastSelectionChangeAt = std::chrono::steady_clock::now();
 
   m_offsetX->setValueAndWarp(m_offsetX->value() + (oldCenter - newCenter));
   *m_offsetX = 0.0f;
@@ -443,6 +445,7 @@ void COverview::onWorkspaceChange() {
                                     (newIdx * (tileH + gap) + tileH * 0.5f);
 
   currentIdx = newIdx;
+  lastSelectionChangeAt = std::chrono::steady_clock::now();
 
   m_offsetX->setValueAndWarp(m_offsetX->value() + (oldCenter - newCenter));
   *m_offsetX = 0.0f;
@@ -473,6 +476,7 @@ void COverview::onWorkspaceChange() {
 void COverview::requestWorkspaceSync() {
   workspaceListDirty = true;
   nextWorkspaceSyncPollAt = std::chrono::steady_clock::now();
+  damageRefreshIdx = -1;
   pendingCapture = true;
   damageDirty = true;
 

@@ -21,6 +21,12 @@ Horza follows your Hyprland animation config.
 
 If you want it snappier or smoother, tune your Hyprland animation block (especially `windowsMove` speed/curve).
 
+## Performance Notes
+
+- rapid card switching prefers cached previews briefly instead of forcing an immediate recapture on every step
+- monitor damage refresh targets the actually dirty workspace card, not blindly the currently selected card
+- `prewarm_all = true` still means capture all cards on open; `frame_pump*` settings only affect how actively Horza keeps driving frames while work or animation is in flight
+
 ## Install
 
 ### Via hyprpm (recommended)
